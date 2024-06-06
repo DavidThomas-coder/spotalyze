@@ -1,10 +1,15 @@
--- Example SQL to load JSON data into Snowflake
-CREATE OR REPLACE TABLE top_songs_usa (
-    id STRING,
-    name STRING,
-    artist_name STRING
-);
+import pandas as pd
 
-COPY INTO top_songs_usa
-FROM '@path_to_your_json_file'
-FILE_FORMAT = (TYPE = 'JSON');
+def transform_data(data):
+    """Transform raw data into a structured format suitable for Snowflake."""
+    df = pd.DataFrame(data['items'])
+    df['id'] = df['track']['id']
+    df['name'] = df['track']['name']
+    df['artist_name'] = df['track']['artists'][0]['name']
+    return df
+
+def load_into_snowflake(df, snowflake_connection_string):
+    """Load transformed data into Snowflake."""
+    # Assuming you have a function to execute SQL commands through Snowflake
+    execute_sql_command(f"INSERT INTO top_songs_usa (id, name, artist_name) VALUES {df.to_sql()}")
+

@@ -1,16 +1,21 @@
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.appName("Artist Trend Analysis").getOrCreate()
+def analyze_artist_trends(snowflake_table):
+    """Analyze artist trends using data from Snowflake."""
+    spark = SparkSession.builder.appName("Artist Trend Analysis").getOrCreate()
+    
+    # Assuming you have a way to read data from Snowflake into Spark
+    df = spark.read.format("jdbc") \
+       .option("url", snowflake_connection_string) \
+       .option("dbtable", "top_songs_usa") \
+       .load()
+    
+    result = spark.sql("""
+    SELECT artist_name, COUNT(*) as plays_count
+    FROM top_songs_usa
+    GROUP BY artist_name
+    ORDER BY plays_count DESC
+    """)
+    
+    result.show()
 
-# Assuming you have a DataFrame `df` loaded from Snowflake
-df.createOrReplaceTempView("top_songs")
-
-# Count occurrences of each artist
-result = spark.sql("""
-SELECT artist_name, COUNT(*) as plays_count
-FROM top_songs
-GROUP BY artist_name
-ORDER BY plays_count DESC
-""")
-
-result.show()

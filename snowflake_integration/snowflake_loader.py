@@ -1,7 +1,7 @@
 import pandas as pd
 
 def transform_data(data):
-    """Transform raw data into a structured format suitable for Snowflake."""
+    """Transform raw data into a workable Snowflake format."""
     df = pd.DataFrame(data['items'])
     df['id'] = df['track']['id']
     df['name'] = df['track']['name']

@@ -1,7 +1,11 @@
 from flask import Flask
+from dotenv import load_dotenv
+import os
 from spotify_api.api_handler import access_token, extract_top_songs
 from snowflake_integration.snowflake_loader import transform_data, connect_to_snowflake, load_from_stage
-from config import Config
+
+# Load environment variables from.env file
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -14,14 +18,14 @@ def fetch_and_load():
     raw_data = extract_top_songs(access_token)
     transformed_data = transform_data(raw_data)
 
-    # Connect to Snowflake using configuration from config.py
+    # Connect to Snowflake using configuration from environment variables
     snowflake_config = {
-        'account': Config.SNOWFLAKE_ACCOUNT,
-        'user': Config.SNOWFLAKE_USER,
-        'password': Config.SNOWFLAKE_PASSWORD,
-        'warehouse': Config.SNOWFLAKE_WAREHOUSE,
-        'database': Config.SNOWFLAKE_DATABASE,
-        'schema': Config.SNOWFLAKE_SCHEMA
+        'account': os.getenv('SNOWFLAKE_ACCOUNT'),
+        'user': os.getenv('SNOWFLAKE_USER'),
+        'password': os.getenv('SNOWFLAKE_PASSWORD'),
+        'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
+        'database': os.getenv('SNOWFLAKE_DATABASE'),
+        'schema': os.getenv('SNOWFLAKE_SCHEMA')
     }
     conn = connect_to_snowflake(**snowflake_config)
 
@@ -32,5 +36,6 @@ def fetch_and_load():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 

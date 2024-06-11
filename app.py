@@ -27,10 +27,11 @@ def fetch_and_load():
 
         return jsonify({"status": "success", "message": "Data fetched and loaded into Snowflake."}), 200
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}, 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

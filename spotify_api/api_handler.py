@@ -1,6 +1,8 @@
 import requests
 import json
 from config import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET  # Import the credentials
+from.local_storage import save_data_locally
+
 
 def access_token():
     """Obtain an access token from the Spotify API."""
@@ -20,10 +22,14 @@ def access_token():
         raise Exception(f"Failed to get access token: {response.text}")
 
 def extract_top_songs(access_token):
-    """Fetch top songs data from the Spotify API."""
+    """Fetch top songs data from the Spotify API and save it locally."""
     url = "https://api.spotify.com/v1/playlists/37i9dQZEVXbLp5XoPON0wI/tracks?market=US"
     header = {'Authorization': f'Bearer {access_token}'}
     response = requests.get(url=url, headers=header)
+    data = response.json()
+    save_data_locally([data], filename_prefix="spotify_top_songs")
+    return data
+
     
     # Check if the request was successful
     if response.status_code == 200:

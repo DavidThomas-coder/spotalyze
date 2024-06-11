@@ -16,7 +16,7 @@ Ensure you have Python installed on your machine. This project requires Python 3
 
 #### Clone the Repository
 
-Clone this repository to your local machine using Git. If you don't have Git installed, download and install it from [git-scm.com](https://git-scm.com/).
+Clone this repository to your local machine using Git
 ```bash git clone https://github.com/DavidThomas-coder/spotalyze.git cd spotalyze```
 
 

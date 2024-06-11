@@ -1,6 +1,7 @@
 from flask import Flask
 from spotify_api.api_handler import access_token, extract_top_songs
 from snowflake_integration.snowflake_loader import transform_data, connect_to_snowflake, load_from_stage
+from config import Config
 
 app = Flask(__name__)
 
@@ -13,14 +14,14 @@ def fetch_and_load():
     raw_data = extract_top_songs(access_token)
     transformed_data = transform_data(raw_data)
 
-    # Connect to Snowflake
+    # Connect to Snowflake using configuration from config.py
     snowflake_config = {
-        'account': '<your_snowflake_account>',
-        'user': '<your_snowflake_user>',
-        'password': '<your_snowflake_password>',
-        'warehouse': '<your_snowflake_warehouse>',
-        'database': '<your_snowflake_database>',
-        'schema': '<your_snowflake_schema>'
+        'account': Config.SNOWFLAKE_ACCOUNT,
+        'user': Config.SNOWFLAKE_USER,
+        'password': Config.SNOWFLAKE_PASSWORD,
+        'warehouse': Config.SNOWFLAKE_WAREHOUSE,
+        'database': Config.SNOWFLAKE_DATABASE,
+        'schema': Config.SNOWFLAKE_SCHEMA
     }
     conn = connect_to_snowflake(**snowflake_config)
 
@@ -31,4 +32,5 @@ def fetch_and_load():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 

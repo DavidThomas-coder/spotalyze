@@ -7,8 +7,8 @@ def access_token(client_id, client_secret):
     header = {'Content-Type': 'application/x-www-form-urlencoded'}
     token_request_body = {
         'grant_type': 'client_credentials',
-        'client_id': client_id,
-        'client_secret': client_secret
+        'client_id': '7f2bda3ce59b4026a3907cf750f21ee8',
+        'client_secret': '506ff237590941348bc7e98b51924c44'
     }
     response = requests.post(url=token_uri, headers=header, data=token_request_body)
     return response.json()['access_token']

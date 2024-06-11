@@ -31,10 +31,11 @@ def load_into_snowflake(df, conn):
     for index, row in df.iterrows():
         insert_query = f"""
         INSERT INTO top_songs_usa (id, name, artist_name)
-        VALUES ('{row['id']', '{row['name']', '{row['artist_name}');
+        VALUES ('{row['id']}', '{row['name']}', '{row['artist_name']}');
         """
         cursor.execute(insert_query)
     conn.commit()
+
 
 def save_df_to_csv(df, filename="spotify_data.csv"):
     """Save DataFrame to a CSV file."""
@@ -46,7 +47,7 @@ def load_from_stage(conn, stage_name, table_name, file_format_name):
     copy_query = f"""
     COPY INTO {table_name}
     FROM @{stage_name}
-    FILE_FORMAT = (TYPE = 'CSV' FORMAT_NAME = '{file_format_name'})
+    FILE_FORMAT = (TYPE = 'CSV' FORMAT_NAME = '{file_format_name}')
     """
     cursor.execute(copy_query)
     conn.commit()

@@ -18,16 +18,8 @@ def fetch_and_load():
     raw_data = extract_top_songs(access_token)
     transformed_data = transform_data(raw_data)
 
-    # Connect to Snowflake using configuration from environment variables
-    snowflake_config = {
-        'account': os.getenv('SNOWFLAKE_ACCOUNT'),
-        'user': os.getenv('SNOWFLAKE_USER'),
-        'password': os.getenv('SNOWFLAKE_PASSWORD'),
-        'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
-        'database': os.getenv('SNOWFLAKE_DATABASE'),
-        'schema': os.getenv('SNOWFLAKE_SCHEMA')
-    }
-    conn = connect_to_snowflake(**snowflake_config)
+    # Connect to Snowflake using environment variables
+    conn = connect_to_snowflake()
 
     # Load data into Snowflake
     load_from_stage(conn, "my_stage", "top_songs_usa", "my_csv_format")
@@ -36,6 +28,8 @@ def fetch_and_load():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
 
 

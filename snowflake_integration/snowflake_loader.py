@@ -1,5 +1,10 @@
 import pandas as pd
 import snowflake.connector
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from.env file
+load_dotenv()
 
 def transform_data(data):
     """Transform raw data into a workable Snowflake format."""
@@ -8,15 +13,15 @@ def transform_data(data):
     df = pd.DataFrame(tracks_info)
     return df
 
-def connect_to_snowflake(account, user, password, warehouse, database, schema):
-    """Establish a connection to Snowflake."""
+def connect_to_snowflake():
+    """Establish a connection to Snowflake using environment variables."""
     conn = snowflake.connector.connect(
-        user=user,
-        password=password,
-        account=account,
-        warehouse=warehouse,
-        database=database,
-        schema=schema
+        user=os.getenv('SNOWFLAKE_USER'),
+        password=os.getenv('SNOWFLAKE_PASSWORD'),
+        account=os.getenv('SNOWFLAKE_ACCOUNT'),
+        warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
+        database=os.getenv('SNOWFLAKE_DATABASE'),
+        schema=os.getenv('SNOWFLAKE_SCHEMA')
     )
     return conn
 
@@ -26,7 +31,7 @@ def load_into_snowflake(df, conn):
     for index, row in df.iterrows():
         insert_query = f"""
         INSERT INTO top_songs_usa (id, name, artist_name)
-        VALUES ('{row['id']', '{row['name']', '{row['artist_name'});
+        VALUES ('{row['id']', '{row['name']', '{row['artist_name}');
         """
         cursor.execute(insert_query)
     conn.commit()
@@ -48,18 +53,8 @@ def load_from_stage(conn, stage_name, table_name, file_format_name):
 
 # Example usage
 if __name__ == "__main__":
-    # Example configuration - replace with your actual Snowflake credentials
-    snowflake_config = {
-        'account': '<your_snowflake_account>',
-        'user': '<your_snowflake_user>',
-        'password': '<your_snowflake_password>',
-        'warehouse': '<your_snowflake_warehouse>',
-        'database': '<your_snowflake_database>',
-        'schema': '<your_snowflake_schema>'
-    }
-
-    # Connect to Snowflake
-    conn = connect_to_snowflake(**snowflake_config)
+    # Connect to Snowflake using environment variables
+    conn = connect_to_snowflake()
 
     # Example data transformation and loading
     # Assume `data` is the raw data fetched from the Spotify API
@@ -71,6 +66,3 @@ if __name__ == "__main__":
 
     # Close the connection
     conn.close()
-
-
-

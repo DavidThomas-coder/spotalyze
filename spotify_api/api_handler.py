@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from flask import current_app
 from.local_storage import save_data_locally
 
 # Load environment variables from.env file
@@ -20,9 +21,12 @@ def access_token():
     
     # Check if the request was successful
     if response.status_code == 200:
-        return response.json()['access_token']
+        token = response.json()['access_token']
+        current_app.logger.debug(f"Obtained access token: {token[:10]}...")  # Log the first 10 characters for security
+        return token
     else:
-        raise Exception(f"Failed to get access token: {response.text}")
+        current_app.logger.error(f"Failed to get access token: {response.text}")
+        return None  # Return None on failure instead of raising an exception
 
 def extract_top_songs(access_token):
     """Fetch top songs data from the Spotify API and save it locally."""
@@ -34,7 +38,10 @@ def extract_top_songs(access_token):
     if response.status_code == 200:
         data = response.json()
         save_data_locally([data], filename_prefix="spotify_top_songs")
+        current_app.logger.debug(f"Fetched top songs data: {len(data['items']} items")  # Log the number of items fetched
         return data
     else:
-        raise Exception(f"Failed to fetch top songs: {response.text}")
+        current_app.logger.error(f"Failed to fetch top songs: {response.text}")
+        return None  # Return None on failure instead of raising an exception
+
 

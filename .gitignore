@@ -1,2 +1,4 @@
 /venv/
 /spotify_api/config.py
+/config.py
+/.env

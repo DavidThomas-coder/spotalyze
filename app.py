@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect, url_for
 from dotenv import load_dotenv
 import os
 from spotify_api.api_handler import access_token, extract_top_songs
@@ -8,6 +8,10 @@ from snowflake_integration.snowflake_loader import transform_data, connect_to_sn
 load_dotenv()
 
 app = Flask(__name__)
+
+@app.route('/')  # Add this route
+def index():
+    return "Welcome to Spotalyze!   <a href='/fetch_and_load'>Click here to fetch and load Spotify data</a>"
 
 @app.route('/fetch_and_load', methods=['GET'])
 def fetch_and_load():
@@ -31,6 +35,7 @@ def fetch_and_load():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

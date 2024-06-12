@@ -1,5 +1,4 @@
 import requests
-import json
 import os
 from dotenv import load_dotenv
 from flask import current_app
@@ -38,10 +37,8 @@ def extract_top_songs(access_token):
     if response.status_code == 200:
         data = response.json()
         save_data_locally([data], filename_prefix="spotify_top_songs")
-        current_app.logger.debug(f"Fetched top songs data: {len(data['items']} items")  # Log the number of items fetched
+        current_app.logger.debug(f"Fetched top songs data: {len(data['items'])} items")  # Log the number of items fetched
         return data
     else:
         current_app.logger.error(f"Failed to fetch top songs: {response.text}")
         return None  # Return None on failure instead of raising an exception
-
-

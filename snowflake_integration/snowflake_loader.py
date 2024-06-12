@@ -38,7 +38,7 @@ def load_into_snowflake(df, conn):
 
 
 def save_df_to_csv(df, filename="spotify_data.csv"):
-    """Save DataFrame to a CSV file."""
+    """Save Dataframe to a CSV file."""
     df.to_csv(filename, index=False)
 
 def load_from_stage(conn, stage_name, table_name, file_format_name):

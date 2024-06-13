@@ -7,6 +7,9 @@ load_dotenv()
 
 def transform_data(raw_data):
     try:
+        # Log raw_data for debugging
+        print(f"raw_data: {raw_data}")
+
         # Assuming raw_data is a dictionary with 'items' as a list of song info
         if 'items' in raw_data:
             items = raw_data['items']
@@ -61,4 +64,6 @@ def load_from_stage(conn, stage, table, format):
     except Exception as e:
         print(f"Error loading data into Snowflake: {e}")
         return False
+
+
 

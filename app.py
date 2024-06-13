@@ -1,8 +1,8 @@
-from flask import Flask, jsonify, request, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for, request
 from dotenv import load_dotenv
 import logging
 import pandas as pd
-from spotify_api.api_handler import get_auth_url, get_token, extract_top_songs
+from spotify_api.api_handler import access_token, extract_top_songs
 from snowflake_integration.snowflake_loader import transform_data, connect_to_snowflake, load_from_stage
 
 # Load environment variables from .env file
@@ -13,33 +13,19 @@ app.logger.setLevel(logging.DEBUG)  # Set Flask's logger to DEBUG level
 
 @app.route('/')
 def index():
-    return "Welcome to Spotalyze <a href='/login'>Click here to login with Spotify</a>"
-
-@app.route('/login')
-def login():
-    auth_url = get_auth_url()
-    return redirect(auth_url)
-
-@app.route('/callback')
-def callback():
-    auth_code = request.args.get('code')
-    if auth_code:
-        access_token_value = get_token(auth_code)
-        if access_token_value:
-            return redirect(url_for('fetch_and_load', token=access_token_value))
-        else:
-            return jsonify({"status": "error", "message": "Failed to obtain Spotify access token."}), 500
-    return jsonify({"status": "error", "message": "Authorization code not found."}), 400
+    return "Welcome to Spotalyze <a href='/fetch_and_load'>Click here to fetch and load Spotify data</a>"
 
 @app.route('/fetch_and_load', methods=['GET'])
 def fetch_and_load():
-    access_token_value = request.args.get('token')
-    if not access_token_value:
-        return jsonify({"status": "error", "message": "Access token is missing."}), 400
-    
     try:
         app.logger.debug("Attempting to obtain Spotify access token...")
-        
+        access_token_value = access_token()
+        if access_token_value:
+            app.logger.debug(f"Obtained access token: {access_token_value[:10]}...")  # Log the first 10 characters for security
+        else:
+            app.logger.error("Failed to obtain Spotify access token.")
+            return jsonify({"status": "error", "message": "Failed to obtain Spotify access token."}), 500
+
         raw_data = extract_top_songs(access_token_value)
         if raw_data:
             app.logger.debug(f"Raw data: {raw_data}")  # Inspect the raw data structure
@@ -69,3 +55,4 @@ def fetch_and_load():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

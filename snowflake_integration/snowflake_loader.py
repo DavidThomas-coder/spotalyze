@@ -3,67 +3,62 @@ import snowflake.connector
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from.env file
 load_dotenv()
 
-def transform_data(data):
-    """Transform raw data into a workable Snowflake format."""
-    items = data['items']
-    tracks_info = [{'id': item['track']['id'], 'name': item['track']['name'], 'artist_name': item['track']['artists'][0]['name']} for item in items]
-    df = pd.DataFrame(tracks_info)
-    return df
+def transform_data(raw_data):
+    try:
+        # Assuming raw_data is a dictionary with 'items' as a list of song info
+        if 'items' in raw_data:
+            items = raw_data['items']
+            # Extract relevant data
+            songs = []
+            for item in items:
+                song_info = {
+                    'id': item['id'],
+                    'name': item['name'],
+                    'artists': ", ".join([artist['name'] for artist in item['artists']]),
+                    'album': item['album']['name'],
+                    'popularity': item['popularity']
+                }
+                songs.append(song_info)
+            
+            # Convert list of song info to DataFrame
+            df = pd.DataFrame(songs)
+            return df
+        else:
+            print(f"Unexpected data format: {raw_data}")
+            return None
+    except Exception as e:
+        print(f"Error transforming data: {e}")
+        return None
 
 def connect_to_snowflake():
-    """Establish a connection to Snowflake using environment variables."""
-    conn = snowflake.connector.connect(
-        user=os.getenv('SNOWFLAKE_USER'),
-        password=os.getenv('SNOWFLAKE_PASSWORD'),
-        account=os.getenv('SNOWFLAKE_ACCOUNT'),
-        warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
-        database=os.getenv('SNOWFLAKE_DATABASE'),
-        schema=os.getenv('SNOWFLAKE_SCHEMA')
-    )
-    return conn
+    try:
+        conn = snowflake.connector.connect(
+            account=os.getenv('SNOWFLAKE_ACCOUNT'),
+            user=os.getenv('SNOWFLAKE_USER'),
+            password=os.getenv('SNOWFLAKE_PASSWORD'),
+            warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
+            database=os.getenv('SNOWFLAKE_DATABASE'),
+            schema=os.getenv('SNOWFLAKE_SCHEMA')
+        )
+        return conn
+    except Exception as e:
+        print(f"Error connecting to Snowflake: {e}")
+        return None
 
-def load_into_snowflake(df, conn):
-    """Load transformed data into Snowflake."""
-    cursor = conn.cursor()
-    for index, row in df.iterrows():
-        insert_query = f"""
-        INSERT INTO top_songs_usa (id, name, artist_name)
-        VALUES ('{row['id']}', '{row['name']}', '{row['artist_name']}');
+def load_from_stage(conn, stage, table, format):
+    try:
+        cursor = conn.cursor()
+        query = f"""
+        COPY INTO {table}
+        FROM @{stage}
+        FILE_FORMAT = (FORMAT_NAME = '{format}')
         """
-        cursor.execute(insert_query)
-    conn.commit()
+        cursor.execute(query)
+        cursor.close()
+        return True
+    except Exception as e:
+        print(f"Error loading data into Snowflake: {e}")
+        return False
 
-
-def save_df_to_csv(df, filename="spotify_data.csv"):
-    """Save Dataframe to a CSV file."""
-    df.to_csv(filename, index=False)
-
-def load_from_stage(conn, stage_name, table_name, file_format_name):
-    """Load data from a stage into a Snowflake table."""
-    cursor = conn.cursor()
-    copy_query = f"""
-    COPY INTO {table_name}
-    FROM @{stage_name}
-    FILE_FORMAT = (TYPE = 'CSV' FORMAT_NAME = '{file_format_name}')
-    """
-    cursor.execute(copy_query)
-    conn.commit()
-
-# Example usage
-if __name__ == "__main__":
-    # Connect to Snowflake using environment variables
-    conn = connect_to_snowflake()
-
-    # Example data transformation and loading
-    # Assume `data` is the raw data fetched from the Spotify API
-    transformed_data = transform_data(data)
-    save_df_to_csv(transformed_data, "spotify_data.csv")  # Save to CSV
-
-    # Upload the CSV to a Snowflake stage (manual step or automated via `snowsql`)
-    load_from_stage(conn, "my_stage", "top_songs_usa", "my_csv_format")  # Replace with your actual stage and format names
-
-    # Close the connection
-    conn.close()

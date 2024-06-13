@@ -1,44 +1,55 @@
-import requests
 import os
+import requests
 from dotenv import load_dotenv
-from flask import current_app
-from.local_storage import save_data_locally
 
-# Load environment variables from.env file
 load_dotenv()
 
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+
 def access_token():
-    """Obtain an access token from the Spotify API."""
-    token_uri = "https://accounts.spotify.com/api/token"
-    header = {'Content-Type': 'application/x-www-form-urlencoded'}
-    token_request_body = {
-        'grant_type': 'client_credentials',
-        'client_id': os.getenv('SPOTIFY_CLIENT_ID'),  # Use environment variable
-        'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET')  # Use environment variable
-    }
-    response = requests.post(url=token_uri, headers=header, data=token_request_body)
-    
-    # Check if the request was successful
-    if response.status_code == 200:
-        token = response.json()['access_token']
-        current_app.logger.debug(f"Obtained access token: {token[:10]}...")  # Log the first 10 characters for security
+    try:
+        # Spotify API token URL
+        auth_url = "https://accounts.spotify.com/api/token"
+        
+        # Basic authentication for the request
+        auth_response = requests.post(auth_url, {
+            'grant_type': 'client_credentials',
+            'client_id': SPOTIFY_CLIENT_ID,
+            'client_secret': SPOTIFY_CLIENT_SECRET,
+        })
+        
+        # Convert the response to JSON
+        auth_response_data = auth_response.json()
+        
+        # Extract the access token
+        token = auth_response_data.get('access_token')
+        
+        if not token:
+            print(f"Error obtaining access token: {auth_response_data}")
+            return None
+        
         return token
-    else:
-        current_app.logger.error(f"Failed to get access token: {response.text}")
-        return None  # Return None on failure instead of raising an exception
+    except Exception as e:
+        print(f"Error obtaining access token: {e}")
+        return None
 
 def extract_top_songs(access_token):
-    """Fetch top songs data from the Spotify API and save it locally."""
-    url = "https://api.spotify.com/v1/playlists/37i9dQZEVXbLp5XoPON0wI/tracks?market=US"
-    header = {'Authorization': f'Bearer {access_token}'}
-    response = requests.get(url=url, headers=header)
-    
-    # Check if the request was successful
-    if response.status_code == 200:
+    try:
+        # Example endpoint to get top songs
+        url = "https://api.spotify.com/v1/me/top/tracks"
+        headers = {
+            "Authorization": f"Bearer {access_token}"
+        }
+        
+        response = requests.get(url, headers=headers)
         data = response.json()
-        save_data_locally([data], filename_prefix="spotify_top_songs")
-        current_app.logger.debug(f"Fetched top songs data: {len(data['items'])} items")  # Log the number of items fetched
+
+        # Log the raw data to inspect its structure
+        print(f"Raw data: {data}")
+
         return data
-    else:
-        current_app.logger.error(f"Failed to fetch top songs: {response.text}")
-        return None  # Return None on failure instead of raising an exception
+    except Exception as e:
+        print(f"Error fetching top songs: {e}")
+        return None
+

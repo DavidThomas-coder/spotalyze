@@ -1,5 +1,6 @@
 import os
 import requests
+import pandas as pd  # Import pandas library
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,47 +10,58 @@ SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 def access_token():
     try:
-        # Spotify API token URL
         auth_url = "https://accounts.spotify.com/api/token"
-        
-        # Basic authentication for the request
         auth_response = requests.post(auth_url, {
             'grant_type': 'client_credentials',
             'client_id': SPOTIFY_CLIENT_ID,
             'client_secret': SPOTIFY_CLIENT_SECRET,
         })
-        
-        # Convert the response to JSON
         auth_response_data = auth_response.json()
-        
-        # Extract the access token
         token = auth_response_data.get('access_token')
-        
         if not token:
             print(f"Error obtaining access token: {auth_response_data}")
             return None
-        
         return token
     except Exception as e:
         print(f"Error obtaining access token: {e}")
         return None
 
-def extract_top_songs(access_token):
+def extract_top_tracks(access_token):
     try:
-        # Example endpoint to get top songs
-        url = "https://api.spotify.com/v1/me/top/tracks"
+        url = "https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF/tracks"  # Spotify's Top 50 Global playlist
         headers = {
             "Authorization": f"Bearer {access_token}"
         }
-        
         response = requests.get(url, headers=headers)
         data = response.json()
-
-        # Log the raw data to inspect its structure
-        print(f"Raw data: {data}")
-
+        print(f"Raw data: {data}")  # Inspect the raw data structure
         return data
     except Exception as e:
-        print(f"Error fetching top songs: {e}")
+        print(f"Error fetching top tracks: {e}")
+        return None
+
+def transform_data(data):
+    try:
+        if 'items' not in data:
+            raise ValueError("Unexpected data format: 'items' key not found")
+        
+        tracks = data['items']
+        track_data = []
+        for item in tracks:
+            track = item['track']
+            track_info = {
+                'id': track.get('id'),
+                'name': track.get('name'),
+                'artists': ", ".join(artist['name'] for artist in track.get('artists', [])),
+                'album': track.get('album', {}).get('name'),
+                'release_date': track.get('album', {}).get('release_date'),
+                'popularity': track.get('popularity')
+            }
+            track_data.append(track_info)
+
+        df = pd.DataFrame(track_data)
+        return df
+    except Exception as e:
+        print(f"Error transforming data: {e}")
         return None
 

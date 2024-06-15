@@ -1,11 +1,10 @@
-from flask import Flask, jsonify, redirect, url_for, request
+from flask import Flask, jsonify, request
 from dotenv import load_dotenv
 import logging
 import pandas as pd
-from spotify_api.api_handler import access_token, extract_top_songs
-from snowflake_integration.snowflake_loader import transform_data, connect_to_snowflake, load_from_stage
+from spotify_api.api_handler import access_token, extract_top_tracks, transform_data
+from snowflake_integration.snowflake_loader import connect_to_snowflake, load_from_stage
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
@@ -26,7 +25,7 @@ def fetch_and_load():
             app.logger.error("Failed to obtain Spotify access token.")
             return jsonify({"status": "error", "message": "Failed to obtain Spotify access token."}), 500
 
-        raw_data = extract_top_songs(access_token_value)
+        raw_data = extract_top_tracks(access_token_value)
         if raw_data:
             app.logger.debug(f"Raw data: {raw_data}")  # Inspect the raw data structure
         else:

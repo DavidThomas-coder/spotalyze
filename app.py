@@ -2,10 +2,9 @@ from flask import Flask, jsonify, request
 from dotenv import load_dotenv
 import logging
 import pandas as pd
-from spotify_api.api_handler import access_token, extract_top_tracks
-from snowflake_integration.snowflake_loader import transform_data, connect_to_snowflake, load_from_stage
+from spotify_api.api_handler import access_token, extract_top_tracks, transform_data
+from snowflake_integration.snowflake_loader import connect_to_snowflake, load_from_stage
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)

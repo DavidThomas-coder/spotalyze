@@ -1,5 +1,6 @@
 import os
 import requests
+import pandas as pd  # Import pandas library
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -63,3 +64,4 @@ def transform_data(data):
     except Exception as e:
         print(f"Error transforming data: {e}")
         return None
+

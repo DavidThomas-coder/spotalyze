@@ -7,7 +7,7 @@ load_dotenv()
 
 def transform_data(raw_data):
     try:
-        # Log raw_data for debugging
+        # Log raw_data
         print(f"raw_data: {raw_data}")
 
         # Assuming raw_data is a dictionary with 'items' as a list of song info

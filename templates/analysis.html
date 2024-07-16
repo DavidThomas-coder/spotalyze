@@ -13,9 +13,10 @@
 
     <h2>Top Artists and Their Number of Top Tracks</h2>
     <ul>
-        {% for artist, count in top_artists.iteritems() %}
+        {% for artist, count in top_artists.items() %}
             <li>{{ artist }}: {{ count }}</li>
         {% endfor %}
     </ul>
 </body>
 </html>
+

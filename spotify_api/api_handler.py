@@ -1,6 +1,6 @@
 import os
 import requests
-import pandas as pd  # Import pandas library
+import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -64,4 +64,12 @@ def transform_data(data):
     except Exception as e:
         print(f"Error transforming data: {e}")
         return None
+
+def save_data_locally(data, filename_prefix="spotify_top_songs"):
+    """Save data to a local JSON file."""
+    today = date.today()
+    filename = f"{filename_prefix}_{today}.json"
+    pd.concat(data).to_json(filename, orient='records')
+    print(f"Data saved to {filename}")
+
 

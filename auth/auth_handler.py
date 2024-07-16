@@ -1,15 +1,27 @@
 import requests
-import json
-from datetime import date
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
 def access_token():
-    tokenUri = "https://accounts.spotify.com/api/token"
-    header = {'Content-Type': 'application/x-www-form-urlencoded'}
-    tokenRequestBody = {
-        'grant_type': 'client_credentials',
-        'client_id': '7f2bda3ce59b4026a3907cf750f21ee8',
-        'client_secret': '506ff237590941348bc7e98b51924c44'
-    }
-    response = requests.post(url=tokenUri, headers=header, data=tokenRequestBody)
-    access_token = response.json()['access_token']
-    return access_token
+    try:
+        auth_url = "https://accounts.spotify.com/api/token"
+        auth_response = requests.post(auth_url, {
+            'grant_type': 'client_credentials',
+            'client_id': SPOTIFY_CLIENT_ID,
+            'client_secret': SPOTIFY_CLIENT_SECRET,
+        })
+        auth_response_data = auth_response.json()
+        token = auth_response_data.get('access_token')
+        if not token:
+            print(f"Error obtaining access token: {auth_response_data}")
+            return None
+        return token
+    except Exception as e:
+        print(f"Error obtaining access token: {e}")
+        return None
+

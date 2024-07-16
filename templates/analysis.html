@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotalyze Analysis</title>
+</head>
+<body>
+    <h1>Spotalyze Analysis</h1>
+    
+    <h2>Average Popularity: {{ average_popularity }}</h2>
+    
+    <h2>Top Artists:</h2>
+    <ul>
+        {% for artist, count in top_artists.items() %}
+            <li>{{ artist }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+    
+    <a href="/raw_data" target="_blank">View Raw Data</a>
+</body>
+</html>
+
+

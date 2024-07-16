@@ -24,14 +24,26 @@ def fetch_and_load():
             return jsonify({"status": "error", "message": "Failed to transform data."}), 500
 
         # Perform analysis with Pandas here
-        # Example: Calculate average popularity
         average_popularity = transformed_data['popularity'].mean()
-
-        # Example: Group by artists and count top tracks
         top_artists = transformed_data.groupby('artists')['name'].count().nlargest(5)
 
-        # Render template with data for display
         return render_template('analysis.html', average_popularity=average_popularity, top_artists=top_artists)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/raw_data', methods=['GET'])
+def get_raw_data():
+    try:
+        access_token_value = access_token()
+        if not access_token_value:
+            return jsonify({"status": "error", "message": "Failed to obtain Spotify access token."}), 500
+
+        raw_data = extract_top_tracks(access_token_value)
+        if not raw_data:
+            return jsonify({"status": "error", "message": "Failed to fetch data from Spotify API."}), 500
+
+        return jsonify({"status": "success", "raw_data": raw_data}), 200
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is designed to analyze trends in music popularity by extracting data from the Spotify API, processing it and analyzing trends. The pipeline integrates with Snowflake for data storage and Databricks for data analysis, offering insights into the evolving music landscape.
+This project is designed to analyze trends in music popularity by extracting, processing and analyzing data from the Spotify API.  The pipeline integrates with Snowflake for data storage and Databricks for data analysis, offering insights into the evolving music landscape.
 
 ## Getting Started
 

@@ -40,7 +40,6 @@ def extract_top_tracks(access_token):
     except Exception as e:
         print(f"Error fetching top tracks: {e}")
         return None
-        
 
 def transform_data(data):
     try:

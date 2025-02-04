@@ -4,7 +4,7 @@ def analyze_artist_trends(snowflake_table):
     """Analyze artist trends using data from Snowflake."""
     spark = SparkSession.builder.appName("Artist Trend Analysis").getOrCreate()
     
-    # Assuming you have a way to read data from Snowflake into Spark
+    # Read data from Snowflake into Spark
     df = spark.read.format("jdbc") \
        .option("url", snowflake_connection_string) \
        .option("dbtable", "top_songs_usa") \

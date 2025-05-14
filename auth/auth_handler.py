@@ -7,6 +7,7 @@ load_dotenv()
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
+
 def access_token():
     try:
         auth_url = "https://accounts.spotify.com/api/token"
